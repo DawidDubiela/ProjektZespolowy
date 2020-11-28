@@ -1,0 +1,109 @@
+body
+{
+	height: 800px;
+	margin:0;
+	position: relative;
+}
+
+.header
+{
+	display: block;
+	width: 100%;
+	height: 100px;
+	font-size: 30px;
+	text-align: center;
+}
+
+.header-left
+{
+    float: left;
+    display: inline-block;
+    width: 69%;
+    height: 100%;
+    border-right: solid 1px black;
+}
+
+.header-right
+{
+    float: right;
+    display: inline-block;
+    width: 30%;
+    height: 100%;
+    text-align: right;
+}
+.header-right p
+{
+    margin-top: 10px;
+    margin-right: 30px;
+}
+.kalendarz-info
+{
+	display: block;
+	width: 100%;
+	height: 100px;
+	font-size: 30px;
+    text-align: center;
+    border-top: solid 1px black;
+    border-bottom: solid 1px black;
+}
+.kalendarz-info p
+{
+	margin-top: 25px;
+}
+.container
+{
+    float:left;
+    list-style:none;
+    margin: 0;
+    padding:0;
+    width: 100%;
+}
+.dni 
+{
+    float:left;
+    list-style:none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 60px;
+    
+}
+.dni li
+{
+    list-style: none;
+    float: left;
+    display: inline-block;
+    margin-left: 0;
+    width: 14.28%;
+    text-align: center;
+    height: 100%;
+    border-bottom: solid 1px black;
+    
+    
+}
+.dni li p
+{
+    margin: 25px;
+}
+.kalendarz
+{
+    float:left;
+    list-style:none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 540px;
+    
+}
+ .kalendarz li
+{
+    list-style: none;
+    float: left;
+    display: inline-block;
+    margin: 0;
+    width: 14.23%;
+    height: 108px;
+    border-right: solid 1px black;
+    border-bottom: solid 1px black;
+}
+
