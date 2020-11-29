@@ -10,12 +10,12 @@ body
 	display: block;
 	width: 100%;
 	height: 50px;
-	background-color: blue;
+	/* background-color: blue; */
 	font-size: 30px;
 	text-align: center;
 }
 h2
-{
+{ 
 	display: inline;
 }
 form
@@ -28,7 +28,7 @@ form
 	display: block;
 	width: 100%;
 	height: 80%;
-	background-color: chartreuse;
+	/* background-color: chartreuse; */
 	
 }
 
@@ -39,7 +39,7 @@ form
 	padding-bottom: 15px;
 	top:30%;
 	left:45%;
-	background-color: blueviolet;
+	/* background-color: blueviolet; */
 }
 .logowanie input[type="text"], input[type="password"]
 {
@@ -57,7 +57,9 @@ form
 	border:1px solid blue;
 	margin-left:5px;
 	padding: 5px ;
+	left: 50%;
 	width: 30%;
+
 	
 }
 

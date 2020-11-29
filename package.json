@@ -1,0 +1,33 @@
+{
+  "name": "projekt-zespolowy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "login.js",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "msnodesqlv8": "^2.0.8",
+    "mssql": "^6.2.3",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  },
+  "scripts": {
+    "live": "nodemon login.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/dawid.dubiela/projekt-zespolowy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/dawid.dubiela/projekt-zespolowy/issues"
+  },
+  "homepage": "https://gitlab.com/dawid.dubiela/projekt-zespolowy#readme"
+}
