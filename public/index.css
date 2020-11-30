@@ -9,14 +9,15 @@ body
 {
 	display: block;
 	width: 100%;
-	height: 50px;
-	background-color: blue;
+	height: 49px;
 	font-size: 30px;
 	text-align: center;
+	
 }
-h2
+h1
 {
 	display: inline;
+	
 }
 form
 {
@@ -27,19 +28,26 @@ form
 	position: relative;
 	display: block;
 	width: 100%;
-	height: 80%;
-	background-color: chartreuse;
+	height: 90%;
 	
 }
 
+.NapisKonsultacje
+{
+	position: absolute;	
+	top:24.5%;
+	left:45%;
+		
+}
 .logowanie
 {
 	position: absolute;
 	width: 200px;
 	padding-bottom: 15px;
 	top:30%;
-	left:45%;
-	background-color: blueviolet;
+	left:44%;
+	background-color:skyblue;
+	border: solid black 1px;
 }
 .logowanie input[type="text"], input[type="password"]
 {
