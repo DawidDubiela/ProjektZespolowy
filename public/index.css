@@ -69,3 +69,32 @@ form
 	
 }
 
+.rejestracja
+{
+	position: absolute;
+	width: 200px;
+	padding-bottom: 15px;
+	top:30%;
+	left:64%;
+	background-color:skyblue;
+	border: solid black 1px;
+}
+.rejestracja input[type="text"], input[type="password"]
+{
+	display: block;
+	border:1px solid blue;
+	padding: 5px ;
+	margin: 15px auto 15px 5px;
+	width: 70%;
+}
+
+.rejestracja input[type="submit"]
+{
+	
+	display: block;
+	border:1px solid blue;
+	margin-left:5px;
+	padding: 5px ;
+	width: 40%;
+	
+}
