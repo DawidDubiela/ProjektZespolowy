@@ -30,25 +30,22 @@ app.post("/", encoder, function (req, res) {
   var password = req.body.password
 
 
-  connection.query("select * from student where email = ? and password = ? ", [username, password],
+  connection.query("select * from users where email = ? and password = ? ", [username, password],
     function (error, results, fields) {
+      console.log(error)
+      console.log(results)
+      console.log(fields)
       if (results.length > 0) {
         res.sendFile(__dirname + "/kalendarz.html")
       }
       else {
-        connection.query("select * from consultant where email = ? and password = ? ", [username, password],
-          function (error, results, fields) {
-            if (results.length > 0) {
-              res.sendFile(__dirname + "/kalendarz.html")
-            }
-            else {
-              res.redirect("/")
-            }
-            res.end()
-          })
+        res.redirect("/")
       }
     })
+
 })
+
+
 
 //ustawiamy port
 app.listen(3000)
