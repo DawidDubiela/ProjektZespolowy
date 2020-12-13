@@ -1,53 +1,46 @@
-const mysql = require("mysql")
 const express = require("express")
-const bodyParser = require("body-parser")
-const encoder = bodyParser.urlencoded()
+const path = require("path")
+const mysql = require("mysql")
+const dotenv = require("dotenv")
+
+dotenv.config({ path: './.env'})
 
 const app = express()
-app.use(express.static("public"))
+
+const db = mysql.createConnection({
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE
+})
+
+const publicDirectory = path.join(__dirname, './public')
+app.use(express.static(publicDirectory))
+
+//parses url-encoded bodies
+app.use(express.urlencoded({ extended: false }))
+
+//parses json bodies
 app.use(express.json())
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Maciej12',
-  database: 'project'
-})
-
+app.set('view engine', 'hbs')
 
 //laczymy sie z baza danych
-connection.connect(function (error) {
-  if (error) throw error
-  else console.log("Connected to the database sucessfully!")
+db.connect( (error) => {
+  if (error){
+    console.log(error)
+  } else{
+     console.log("Connected to the database sucessfully!")
+  }
 })
 
-app.get("/", function (req, res) {
-  res.sendFile(__dirname + "/index.html")
-})
-
-app.post("/", encoder, function (req, res) {
-  var username = req.body.username
-  var password = req.body.password
-
-
-  connection.query("select * from users where email = ? and password = ? ", [username, password],
-    function (error, results, fields) {
-      console.log(error)
-      console.log(results)
-      console.log(fields)
-      if (results.length > 0) {
-        res.sendFile(__dirname + "/kalendarz.html")
-      }
-      else {
-        res.redirect("/")
-      }
-    })
-
-})
-
-
+//Define routes
+app.use('/', require('./routes/pages'))
+app.use('/auth', require('./routes/auth'))
 
 //ustawiamy port
-app.listen(3000)
+app.listen(3000, () =>{
+  console.log("Server running on port 3000")
+})
 
 
