@@ -7,6 +7,8 @@ router.post('/rejestracja', authController.register)
 
 router.post('/logowanie', authController.login)
 
+router.get('/wyloguj', authController.logout)
+
 
    
 

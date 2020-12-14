@@ -28,3 +28,14 @@ nav li a:hover{
 	text-decoration: none;
 }
 
+.avatar-ctn{
+	background-color: orange;
+	text-align: center;
+
+}
+
+.avatar{
+	width: 30%;
+	border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+
