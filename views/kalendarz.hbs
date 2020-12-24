@@ -18,39 +18,76 @@
     <script src='https://fullcalendar.io/releases/fullcalendar/3.9.0/lib/moment.min.js'></script>
     <script src='https://fullcalendar.io/releases/fullcalendar/3.9.0/lib/jquery.min.js'></script>
     <script src='https://fullcalendar.io/releases/fullcalendar/3.9.0/fullcalendar.min.js'></script>
-    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min
-    .js'></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    {{!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> --}}
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="/sweetalert2.min.css">
     <script>
         $(document).ready(function () {
+
+            //dzisiejsza data
+            var today = new Date();
+            var dd = today.getDate();
+
+            var mm = today.getMonth() + 1;
+            var yyyy = today.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd;
+            }
+
+            if (mm < 10) {
+                mm = '0' + mm;
+            }
+            today = yyyy + '-' + mm + '-' + dd; 
+
+            //konsultacje z bazy danych
             var konsultacje = {{{consultation}}};
             var eventy = konsultacje.map(element =>{
                 return {
-                    title: 'ssss',
-                    start: element.date_start + 'T' + element.hour_start
+                    title: 'Konsultacja z ' + element.name,
+                    start: element.start,
+                    end: element.end,
+                    id: element.id_consultation,
+                    id_consultant: element.id_consultant
                 };
             });
+
             $('#calendar').fullCalendar({
                 header: {
                     left: 'prev,next today',
                     center: 'title',
                     right: 'month,basicWeek,basicDay'
                 },
-                defaultDate: '2020-10-20',
+                defaultDate: today,
                 navLinks: true, // can click day/week names to navigate views
                 editable: true,
                 eventLimit: true, // allow "more" link when too many events
                 //events:  eventy, 
                 events: eventy,
-                eventClick: function (calEvent, jsEvent, view, resourceObj) {
-                    swal({
-                        title: calEvent.title,
-                        text: "Start From : " + moment(calEvent.start).format("MMMM Do YYYY, h:mm a"),
-                        icon: "success",
-                    });
-                }
-            });
+             eventClick: function(calEvent, jsEvent, view, resourceObj) {
+          Swal.fire({
+            title: calEvent.title,
+            html: "Data rozpoczęcia: " +moment(calEvent.start).format("lll") + '<br/>Data zakończenia: ' + moment(calEvent.end).format("lll"),
+            showCancelButton: true,
+            cancelButtonText: 'Wyjdz',
+            confirmButtonText: 'Dolacz do kolejki',
+            icon: 'info'
+          }).then((result) => {
+              console.log(calEvent);
+            if(result.isConfirmed)
+            {
+             const Url = 'http://LOCALHOST:3000/auth/kolejka';
+             const Data = {
+                 id_consultation: calEvent.id
+             };
+             fetch(Url, {method:'POST', body:JSON.stringify(Data),  headers: {'Content-Type': 'application/json'}})
+             .then(data=>{return data.json()})
+             .then(res=>{console.log(res)})
+             .catch(error=>console.log(error))
+            }
+          })
+      }
+    });
             $(".fc-right .fc-button-group").append(
                 '<div class="input-group datetimepicker"><input type="text" class="form-control fc-datepicker" placeholder="YYYY-MM-DD" style="padding: 0;width: 0;border: none;margin: 0;"></div>');
             $(".fc-datepicker").datepicker({
@@ -60,6 +97,8 @@
             });
         });
     </script>
+
+    
     
     <title>Konsultacje</title>
 </head>

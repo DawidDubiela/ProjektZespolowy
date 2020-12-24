@@ -9,7 +9,7 @@ router.post('/logowanie', authController.login)
 
 router.get('/wyloguj', authController.logout)
 
-
+router.post('/kolejka',authController.isLoggedIn, authController.addToQueue)
 
 
    

@@ -121,7 +121,7 @@ exports.logout = async (req, res) => {
 }
 
 exports.getConsultations = async (req, res, next) => {
-    db.query('select * from consultation', async (error, results) => {
+    db.query('select id_consultation, start, end, c.id_consultant, name from consultation c  join consultant x on c.id_consultant = x.id_consultant; ', async (error, results) => {
         console.log("LOGIN RESULTS " + JSON.stringify(results))
         if (error) {
             console.log(error)
@@ -133,3 +133,12 @@ exports.getConsultations = async (req, res, next) => {
     )    
 }
 
+exports.addToQueue = async(req, res) => {
+    res.send(JSON.stringify(req.body));
+    var today = new Date();
+    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date+' '+time;
+    console.log(dateTime);
+    db.query('insert into queue set ?', {fk_consultation:req.body.id_consultation, fk_student: req.user.user_id, date: dateTime});
+}

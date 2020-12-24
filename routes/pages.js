@@ -10,8 +10,7 @@ router.get('/', authController.isLoggedIn, (req, res) => {
         })
     }else{
         res.render('login')
-    }
-    
+    }   
 })
 
 router.get('/rejestracja', (req, res) => {
@@ -43,6 +42,7 @@ router.get('/kalendarz', authController.isLoggedIn, authController.getConsultati
         res.redirect('/logowanie')
     }   
 })
+
 
 
 module.exports = router

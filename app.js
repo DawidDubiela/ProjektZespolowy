@@ -3,6 +3,7 @@ const path = require("path")
 const mysql = require("mysql")
 const dotenv = require("dotenv")
 const cookieParser = require("cookie-parser")
+const Swal = require('sweetalert2')
 
 dotenv.config({ path: './.env'})
 
