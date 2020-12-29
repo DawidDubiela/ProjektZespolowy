@@ -17,7 +17,7 @@
     "nodemon": "^2.0.6"
   },
   "scripts": {
-    "live": "nodemon app.js"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
