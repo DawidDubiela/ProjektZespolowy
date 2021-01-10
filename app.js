@@ -4,8 +4,9 @@ const mysql = require("mysql")
 const dotenv = require("dotenv")
 const cookieParser = require("cookie-parser")
 const Swal = require('sweetalert2')
+const hbs = require('hbs')
 
-dotenv.config({ path: './.env'})
+dotenv.config({ path: './.env' })
 
 const app = express()
 
@@ -26,13 +27,15 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.set('view engine', 'hbs')
-
+hbs.registerHelper("inc", function (value, options) {
+  return parseInt(value) + 1;
+})
 //laczymy sie z baza danych
-db.connect( (error) => {
-  if (error){
+db.connect((error) => {
+  if (error) {
     console.log(error)
-  } else{
-     console.log("Connected to the database sucessfully!")
+  } else {
+    console.log("Connected to the database sucessfully!")
   }
 })
 
@@ -41,8 +44,7 @@ app.use('/', require('./routes/pages'))
 app.use('/auth', require('./routes/auth'))
 
 //ustawiamy port
-var PORT = process.env.PORT || 5000
-app.listen(PORT, () =>{
+app.listen(3000, () => {
   console.log("Server running on port 3000")
 })
 

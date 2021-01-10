@@ -18,13 +18,14 @@
     <script src='https://fullcalendar.io/releases/fullcalendar/3.9.0/lib/moment.min.js'></script>
     <script src='https://fullcalendar.io/releases/fullcalendar/3.9.0/lib/jquery.min.js'></script>
     <script src='https://fullcalendar.io/releases/fullcalendar/3.9.0/fullcalendar.min.js'></script>
-    {{!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> --}}
+    {{!--
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> --}}
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="/sweetalert2.min.css">
     <script>
         $(document).ready(function () {
-
+            var user = {{{user}}};
             //dzisiejsza data
             var today = new Date();
             var dd = today.getDate();
@@ -38,68 +39,95 @@
             if (mm < 10) {
                 mm = '0' + mm;
             }
-            today = yyyy + '-' + mm + '-' + dd; 
+            today = yyyy + '-' + mm + '-' + dd;
 
-            //konsultacje z bazy danych
-            var konsultacje = {{{consultation}}};
-            var eventy = konsultacje.map(element =>{
-                return {
-                    title: 'Konsultacja z ' + element.name,
-                    start: element.start,
-                    end: element.end,
-                    id: element.id_consultation,
-                    id_consultant: element.id_consultant
-                };
-            });
+            //konsultacje z bazy danychrs
+            var konsultacje = {{{ consultation }}};
+            var eventy = konsultacje.map(element => {
+            return {
+                title: 'Konsultacja z ' + element.name,
+                start: element.start,
+                end: element.end,
+                id: element.consultation_id,
+                id_consultant: element.consultant_id
+            };
+        });
 
-            $('#calendar').fullCalendar({
-                header: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'month,basicWeek,basicDay'
-                },
-                defaultDate: today,
-                navLinks: true, // can click day/week names to navigate views
-                editable: true,
-                eventLimit: true, // allow "more" link when too many events
-                //events:  eventy, 
-                events: eventy,
-             eventClick: function(calEvent, jsEvent, view, resourceObj) {
-          Swal.fire({
-            title: calEvent.title,
-            html: "Data rozpoczęcia: " +moment(calEvent.start).format("lll") + '<br/>Data zakończenia: ' + moment(calEvent.end).format("lll"),
-            showCancelButton: true,
-            cancelButtonText: 'Wyjdz',
-            confirmButtonText: 'Dolacz do kolejki',
-            icon: 'info'
-          }).then((result) => {
-              console.log(calEvent);
-            if(result.isConfirmed)
-            {
-             const Url = 'http://LOCALHOST:3000/auth/kolejka';
-             const Data = {
-                 id_consultation: calEvent.id
-             };
-             fetch(Url, {method:'POST', body:JSON.stringify(Data),  headers: {'Content-Type': 'application/json'}})
-             .then(data=>{return data.json()})
-             .then(res=>{console.log(res)})
-             .catch(error=>console.log(error))
+
+
+        $('#calendar').fullCalendar({
+            eventStartEditable: false,
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,basicWeek,basicDay'
+            },
+            defaultDate: today,
+            navLinks: true, // can click day/week names to navigate views
+            editable: true,
+            eventLimit: true, // allow "more" link when too many events
+            //events:  eventy, 
+            events: eventy,
+            eventClick: function (calEvent, jsEvent, view, resourceObj) {
+                Swal.fire({
+                    title: calEvent.title,
+                    html: "Data rozpoczęcia: " + moment(calEvent.start).format("lll") + '<br/>Data zakończenia: ' + moment(calEvent.end).format("lll"),
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    denyButtonText: 'Opuść kolejke',
+                    cancelButtonText: 'Wyjdz',
+                    confirmButtonText: 'Dolacz do kolejki',
+                    icon: 'info'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const Url = 'http://LOCALHOST:3000/auth/kolejka';
+                        const Data = {
+                            id_consultation: calEvent.id
+                        };
+                        fetch(Url, { method: 'POST', body: JSON.stringify(Data), headers: { 'Content-Type': 'application/json' } })
+                            .then(data => { return data.json() })
+                            .then(res => {
+                                Swal.fire({
+                                    title: res.message,
+                                    icon: res.icon
+                                })
+                            })
+                            .catch(error => { console.log(error) })
+                    }
+                    else if(result.isDenied)
+                    {
+                        const Url = 'http://LOCALHOST:3000/auth/dropFromQue';
+                        const Data = {
+                            id_consultation: calEvent.id,
+                            user: user.user_id
+                        };
+                        fetch(Url, { method: 'DELETE', body: JSON.stringify(Data), headers: { 'Content-Type': 'application/json' } })
+                            .then(data => { return data.json() })
+                            .then(res => {
+                                Swal.fire({
+                                    title: res.message,
+                                    icon: res.icon
+                                })
+                            })
+                            .catch(error => { console.log(error) })
+                    }
+                }
+                )
             }
-          })
-      }
-    });
-            $(".fc-right .fc-button-group").append(
-                '<div class="input-group datetimepicker"><input type="text" class="form-control fc-datepicker" placeholder="YYYY-MM-DD" style="padding: 0;width: 0;border: none;margin: 0;"></div>');
-            $(".fc-datepicker").datepicker({
-                dateFormat: 'yy-mm-dd',
-                showOn: "button",
-                buttonText: '<span class="input-group-addon"><i class="fas fa-calendar-alt"></i></span>'
-            });
+        }
+        );
+        $(".fc-right .fc-button-group").append(
+            '<div class="input-group datetimepicker"><input type="text" class="form-control fc-datepicker" placeholder="YYYY-MM-DD" style="padding: 0;width: 0;border: none;margin: 0;"></div>');
+        $(".fc-datepicker").datepicker({
+            dateFormat: 'yy-mm-dd',
+            showOn: "button",
+            buttonText: '<span class="input-group-addon"><i class="fas fa-calendar-alt"></i></span>'
+        });
         });
     </script>
 
-    
-    
+
+
     <title>Konsultacje</title>
 </head>
 
@@ -107,7 +135,7 @@
 <body>
     <nav>
 
-        
+
         <h4>Kalendarz</h4>
         <ul>
             <li><a href="/profil">Profil</a></li>
