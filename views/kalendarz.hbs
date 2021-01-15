@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+      <meta charset="UTF-8">
+    <meta name="viewport" content="Width=device-width, initial-scale = 1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="/style.css">
+
+    <link href='/fullcalendar.min.css' rel='stylesheet' />
+
+<link href='/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+
+<link rel="stylesheet" href="/jquery-ui.css">
+
+     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+        integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+        <script src='/moment.min.js'></script>
+    
+    <script src='/jquery.min.js'></script>
+
+    <script src='/fullcalendar.min.js'></script>
+
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    
+    <script src="/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="/sweetalert2.min.css">
+
+    <script>
+        $(document).ready(function () {
+            var user = {{{user}}};
+            //dzisiejsza data
+            var today = new Date();
+            var dd = today.getDate();
+
+            var mm = today.getMonth() + 1;
+            var yyyy = today.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd;
+            }
+
+            if (mm < 10) {
+                mm = '0' + mm;
+            }
+            today = yyyy + '-' + mm + '-' + dd;
+
+            //konsultacje z bazy danychrs
+            var konsultacje = {{{ consultation }}};
+            var eventy = konsultacje.map(element => {
+            return {
+                title: 'Konsultacja z ' + element.name,
+                start: element.start,
+                end: element.end,
+                id: element.consultation_id,
+                id_consultant: element.consultant_id
+            };
+        });
+
+
+
+        $('#calendar').fullCalendar({
+            eventStartEditable: false,
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,basicWeek,basicDay'
+            },
+            defaultDate: today,
+            navLinks: true, // can click day/week names to navigate views
+            editable: true,
+            eventLimit: true, // allow "more" link when too many events 
+            events: eventy,
+            eventClick: function (calEvent, jsEvent, view, resourceObj) {
+                Swal.fire({
+                    title: calEvent.title,
+                    html: "Data rozpoczęcia: " + moment(calEvent.start).format("lll") + '<br/>Data zakończenia: ' + moment(calEvent.end).format("lll"),
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    denyButtonText: 'Opuść kolejke',
+                    cancelButtonText: 'Wyjdz',
+                    confirmButtonText: 'Dolacz do kolejki',
+                    icon: 'info'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const Url = 'https://konsultacje-pz.herokuapp.com/auth/kolejka';
+                        const Data = {
+                            id_consultation: calEvent.id,
+                            user: user
+                        };
+                        fetch(Url, { method: 'POST', body: JSON.stringify(Data), headers: { 'Content-Type': 'application/json' } })
+                            .then(data => { return data.json() })
+                            .then(res => {
+                                Swal.fire({
+                                    title: res.message,
+                                    icon: res.icon
+                                })
+                            })
+                            .catch(error => { console.log(error) })
+                    }
+                    else if(result.isDenied)
+                    {
+                        const Url = 'https://konsultacje-pz.herokuapp.com/auth/dropFromQue';
+                        const Data = {
+                            id_consultation: calEvent.id,
+                            user: user.user_id
+                        };
+                        fetch(Url, { method: 'DELETE', body: JSON.stringify(Data), headers: { 'Content-Type': 'application/json' } })
+                            .then(data => { return data.json() })
+                            .then(res => {
+                                Swal.fire({
+                                    title: res.message,
+                                    icon: res.icon
+                                })
+                            })
+                            .catch(error => { console.log(error) })
+                    }
+                }
+                )
+            }
+        }
+        );
+        });
+    </script>
+
+
+
+    <title>Konsultacje</title>
+</head>
+
+
+<body>
+    <nav>
+
+
+        <h4>Kalendarz</h4>
+        <ul>
+            <li><a href="/profil">Profil</a></li>
+            <li><a href="/kalendarz">Kalendarz konsultacji</a></li>
+            <li><a href="/auth/wyloguj">Wyloguj</a></li>
+        </ul>
+    </nav>
+</body>
+<div id='calendar'></div>
+
+</html>
