@@ -2,27 +2,33 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+      <meta charset="UTF-8">
     <meta name="viewport" content="Width=device-width, initial-scale = 1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
     <link rel="stylesheet" href="/style.css">
 
-    <link href='https://fullcalendar.io/releases/fullcalendar/3.9.0/fullcalendar.min.css' rel='stylesheet' />
+    <link href='/fullcalendar.min.css' rel='stylesheet' />
 
-    <link href='https://fullcalendar.io/releases/fullcalendar/3.9.0/fullcalendar.print.min.css' rel='stylesheet'
-        media='print' />
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+<link href='/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+
+<link rel="stylesheet" href="/jquery-ui.css">
+
+     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
         integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-    <script src='https://fullcalendar.io/releases/fullcalendar/3.9.0/lib/moment.min.js'></script>
-    <script src='https://fullcalendar.io/releases/fullcalendar/3.9.0/lib/jquery.min.js'></script>
-    <script src='https://fullcalendar.io/releases/fullcalendar/3.9.0/fullcalendar.min.js'></script>
-    {{!--
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> --}}
+
+        <script src='/moment.min.js'></script>
+    
+    <script src='/jquery.min.js'></script>
+
+    <script src='/fullcalendar.min.js'></script>
+
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    
     <script src="/sweetalert2.min.js"></script>
     <link rel="stylesheet" href="/sweetalert2.min.css">
+
     <script>
         $(document).ready(function () {
             var user = {{{user}}};
@@ -65,8 +71,7 @@
             defaultDate: today,
             navLinks: true, // can click day/week names to navigate views
             editable: true,
-            eventLimit: true, // allow "more" link when too many events
-            //events:  eventy, 
+            eventLimit: true, // allow "more" link when too many events 
             events: eventy,
             eventClick: function (calEvent, jsEvent, view, resourceObj) {
                 Swal.fire({
@@ -80,9 +85,10 @@
                     icon: 'info'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const Url = 'http://LOCALHOST:3000/auth/kolejka';
+                        const Url = 'https://konsultacje-pz.herokuapp.com/auth/kolejka';
                         const Data = {
-                            id_consultation: calEvent.id
+                            id_consultation: calEvent.id,
+                            user: user
                         };
                         fetch(Url, { method: 'POST', body: JSON.stringify(Data), headers: { 'Content-Type': 'application/json' } })
                             .then(data => { return data.json() })
@@ -96,7 +102,7 @@
                     }
                     else if(result.isDenied)
                     {
-                        const Url = 'http://LOCALHOST:3000/auth/dropFromQue';
+                        const Url = 'https://konsultacje-pz.herokuapp.com/auth/dropFromQue';
                         const Data = {
                             id_consultation: calEvent.id,
                             user: user.user_id
@@ -116,13 +122,6 @@
             }
         }
         );
-        $(".fc-right .fc-button-group").append(
-            '<div class="input-group datetimepicker"><input type="text" class="form-control fc-datepicker" placeholder="YYYY-MM-DD" style="padding: 0;width: 0;border: none;margin: 0;"></div>');
-        $(".fc-datepicker").datepicker({
-            dateFormat: 'yy-mm-dd',
-            showOn: "button",
-            buttonText: '<span class="input-group-addon"><i class="fas fa-calendar-alt"></i></span>'
-        });
         });
     </script>
 

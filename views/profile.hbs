@@ -8,8 +8,8 @@
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="/style.css">
     <script>
-        var test = function(value,object){
-             const Url = 'http://LOCALHOST:3000/auth/dfq';
+        var usuń = function(object){
+             const Url = 'https://konsultacje-pz.herokuapp.com/auth/dfq';
              const Data = {
                  user: object.getAttribute('data-arg1'),
                  consultation: object.getAttribute('data-arg2')
@@ -86,7 +86,7 @@
                         {{#each consultant}}
                         <div style="display: flex; justify-content: center; align-items: center; height: 50px; padding: 5px">
                             <h5 style="margin: 0;" class="card-tile">{{inc @index}}. {{this.name}}
-                            </h5><button style = "margin-left:auto;" class="btn btn-danger button-deleter" data-arg1={{this.user_id}} data-arg2={{this.consultation_id}} onclick="test('dupa',this)">usuń</button></div>
+                            </h5><button style = "margin-left:auto;" class="btn btn-danger button-deleter" data-arg1={{this.user_id}} data-arg2={{this.consultation_id}} onclick="usuń(this)">usuń</button></div>
                         {{/each}}
                         {{/if}}
                     </div>

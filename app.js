@@ -1,21 +1,21 @@
 const express = require("express")
 const path = require("path")
-const mysql = require("mysql")
 const dotenv = require("dotenv")
 const cookieParser = require("cookie-parser")
 const Swal = require('sweetalert2')
 const hbs = require('hbs')
+const cors = require('cors')
 
-dotenv.config({ path: './.env' })
 
 const app = express()
+dotenv.config({ path: './.env' })
 
-const db = mysql.createConnection({
-  host: process.env.DATABASE_HOST,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE
-})
+var corsOptions = {
+  origin: '*',
+  optionsSuccessStatus: 200 
+}
+
+app.use(cors(corsOptions));
 
 const publicDirectory = path.join(__dirname, './public')
 app.use(express.static(publicDirectory))
@@ -26,17 +26,11 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 app.use(cookieParser())
 
+
+
 app.set('view engine', 'hbs')
 hbs.registerHelper("inc", function (value, options) {
   return parseInt(value) + 1;
-})
-//laczymy sie z baza danych
-db.connect((error) => {
-  if (error) {
-    console.log(error)
-  } else {
-    console.log("Connected to the database sucessfully!")
-  }
 })
 
 //Define routes
@@ -44,8 +38,9 @@ app.use('/', require('./routes/pages'))
 app.use('/auth', require('./routes/auth'))
 
 //ustawiamy port
-app.listen(3000, () => {
-  console.log("Server running on port 3000")
+var PORT = process.env.PORT
+app.listen(PORT, () =>{
+  console.log("Server is running")
 })
 
 

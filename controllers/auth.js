@@ -2,14 +2,7 @@ const mysql = require('mysql')
 const jwt = require('jsonwebtoken')
 const bcryptjs = require('bcryptjs')
 const { promisify } = require('util')
-const { nextTick } = require('process')
-
-const db = mysql.createConnection({
-    host: process.env.DATABASE_HOST,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE
-})
+const db = require('../db.js')
 
 exports.login = async (req, res) => {
     const x = 0;
@@ -36,7 +29,6 @@ exports.login = async (req, res) => {
                 const token = jwt.sign({ id: id }, process.env.JWT_SECRET, {
                     expiresIn: process.env.JWT_EXPIRES_IN
                 })
-                console.log("The token is " + token)
                 const cookieOptions = {
                     expires: new Date(
                         Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
@@ -56,7 +48,6 @@ exports.login = async (req, res) => {
 }
 
 exports.register = (req, res) => {
-    console.log(req.body)
     const { name, email, password, passwordConfirm } = req.body
     if (name.length == 0 || email.length == 0 || password.length == 0) {
         return res.render('register', {
@@ -79,7 +70,6 @@ exports.register = (req, res) => {
         }
 
         let hashedPassword = await bcryptjs.hash(password, 8)
-        console.log(hashedPassword)
 
         db.query('insert into users set ?', { name: name, email: email, password: hashedPassword, role: 1 }, (error, reuslts) => {
             if (error) {
@@ -94,7 +84,6 @@ exports.register = (req, res) => {
 }
 
 exports.isLoggedIn = async (req, res, next) => {
-    console.log(req.cookies)
     if (req.cookies.jwt) {
         try {
             //veryifying token
@@ -103,14 +92,12 @@ exports.isLoggedIn = async (req, res, next) => {
             )
             //check if user exists
             db.query('select * from users where user_id = ?', [decoded.id], (error, result) => {
-                console.log(result)
                 if (!result) {
                     return next()
                 }
                 req.user = result[0]
                 return next()
             })
-            console.log(decoded)
         } catch (error) {
             console.log(error)
             return next()
@@ -130,7 +117,6 @@ exports.logout = async (req, res) => {
 
 exports.getConsultations = async (req, res, next) => {
     db.query('select consultation_id, start, end, c.consultant_id, name from consultation c  join users x on c.consultant_id = x.user_id; ', async (error, results) => {
-        console.log("LOGIN RESULTS " + JSON.stringify(results))
         if (error) {
             console.log(error)
             next()
@@ -142,25 +128,50 @@ exports.getConsultations = async (req, res, next) => {
 }
 
 exports.addToQueue = async (req, res) => {
-    db.query('select* from queue where fk_consultation = ? and fk_student = ?', [req.body.id_consultation, req.user.user_id], async (error, results) => {
-        if (results.length != 0) {
-            req.body.message = "Jestes juz zapisany na ta konsultacje";
-            req.body.icon = 'error';
-            res.send(JSON.stringify(req.body));
+    db.query(
+        "select* from queue where fk_consultation = ? and fk_student = ?",
+        [req.body.id_consultation, req.body.user.user_id],
+        async (error, results) => {
+            if (results.length != 0) {
+                req.body.message = "Jestes juz zapisany na ta konsultacje";
+                req.body.icon = "error";
+                res.send(JSON.stringify(req.body));
+            } else if (req.body.user.role == 2) {
+                req.body.message = "Konsultant nie moze zostac dodany do kolejki";
+                req.body.icon = "error";
+                res.send(JSON.stringify(req.body));
+            } else {
+                db.query(`select* 
+                from consultation where 
+                consultation_id = ?
+                and end>=(now() + interval 1 hour);`, [req.body.id_consultation], async (error, results) => {
+                    if (results.length == 0) {
+                        req.body.message = "Konsultacja na którą próbujesz się zapisać się zakończyła";
+                        req.body.icon = "error";
+                        res.send(JSON.stringify(req.body));
+                    }
+                    else {
+                        db.query("insert into queue set ?", {
+                            fk_consultation: req.body.id_consultation,
+                            fk_student: req.body.user.user_id
+                        }, async (error, results) => {
+                            if (results) {
+                                db.query("call fixPosition(?)", [req.body.id_consultation], async (error, results) => {
+                                    req.body.icon = "success";
+                                    req.body.message = "Zostales dodany do kolejki";
+                                    res.send(JSON.stringify(req.body));
+                                })
+                            }
+                            else {
+                                console.log(error)
+                            }
+                        })
+                    }
+                })
+            }
         }
-        else if (req.user.role == 2) {
-            req.body.message = "Konsultant nie moze zostac dodany do kolejki";
-            req.body.icon = 'error';
-            res.send(JSON.stringify(req.body));
-        }
-        else {
-            db.query('insert into queue set ?', { fk_consultation: req.body.id_consultation, fk_student: req.user.user_id });
-            req.body.icon = 'success';
-            req.body.message = "Zostales dodany do kolejki";
-            res.send(JSON.stringify(req.body));
-        }
-    })
-}
+    )
+};
 
 exports.adminLog = async (req, res) => {
     {
@@ -172,7 +183,6 @@ exports.adminLog = async (req, res) => {
                 })
             }
             db.query('select * from admin where login =?', [login], async (error, results) => {
-                console.log("LOGIN RESULTS " + JSON.stringify(results))
                 if (!results || !(await bcryptjs.compare(password, results[0].password))) {
                     res.status(401).render('adminlog', {
                         message: 'Wprowadzono złe dane'
@@ -182,7 +192,6 @@ exports.adminLog = async (req, res) => {
                     const token = jwt.sign({ id: id }, process.env.JWT_SECRET, {
                         expiresIn: process.env.JWT_EXPIRES_IN
                     })
-                    console.log("The token is " + token)
                     const cookieOptions = {
                         expires: new Date(
                             Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
@@ -200,7 +209,6 @@ exports.adminLog = async (req, res) => {
 }
 
 exports.isAdmin = async (req, res, next) => {
-    console.log(req.cookies)
     if (req.cookies.jwt) {
         try {
             //veryifying token
@@ -215,7 +223,6 @@ exports.isAdmin = async (req, res, next) => {
                 req.admin = result[0]
                 return next()
             })
-            console.log(decoded)
         } catch (error) {
             console.log(error)
             return next()
@@ -249,7 +256,6 @@ exports.registerConsultant = (req, res) => {
         }
 
         let hashedPassword = await bcryptjs.hash(password, 8)
-        console.log(hashedPassword)
 
         db.query('insert into users set ?', { email: email, password: hashedPassword, name: name, role: 2 }, (error, reuslts) => {
             if (error) {
@@ -269,27 +275,26 @@ exports.registerConsultation = (req, res) => {
     var startv = start.replace('T', ' ');
     var endv = end.replace('T', ' ');
     var now = new Date();
-now = now.toISOString().slice(0,-8);
+    now = now.toISOString().slice(0, -8);
     if (id.length == 0 || start.length == 0 || end.length == 0) {
         return res.render('addConsultation', {
             message: 'Wypełnij wszystkie pola'
         })
     }
-    
-    else if(start>end){
+
+    else if (start > end) {
         return res.render('addConsultation', {
             message: 'Zostały wprowadzone złe dane, data początku jest po dacie zakończenia.'
         })
     }
 
-    else if(start<now || end<now){
+    else if (start < now || end < now) {
         return res.render('addConsultation', {
             message: 'Zostały wprowadzone złe dane, nie można zarejestrować konsultacji, która zaczeła/skończyła się przed jej dodaniem'
         })
     }
-  
+
     db.query('select* from users where user_id = ? and role = 2', [parseInt(id)], (error, results) => {
-        console.log(results);
         if (error) {
             console.log(error)
         }
@@ -309,7 +314,6 @@ now = now.toISOString().slice(0,-8);
                 and ? <= end)
                 or (? <= start 
                 and ? >= end ));`, [parseInt(id), start, start, end, end, start, end], (error, results) => {
-                console.log(results);
                 if (error) {
                     console.log(error)
                 }
@@ -346,7 +350,6 @@ exports.getConsUser = async (req, res, next) => {
         inner join users u2 
         on u2.user_id = c.consultant_id 
         where fk_student = ?`, [req.user.user_id], async (error, results) => {
-        console.log("LOGIN RESULTS " + JSON.stringify(results))
         if (error) {
             console.log(error)
             next()
@@ -370,7 +373,7 @@ exports.isConsultant = async (req, res, next) => {
                 join consultation on fk_consultation = consultation_id
                 join users u on fk_student = u.user_id
                 join users u2 on consultant_id = u2.user_id
-                where start <= now() and end >= now() and 
+                where start <= (now() + interval 1 hour) and end >= (now() + interval 1 hour) and 
                 consultant_id = (select user_id from users where user_id = ? and role = 2) order by position asc`
                 , [decoded.id], (error, result) => {
                     if (result.length == 0) {
@@ -379,7 +382,6 @@ exports.isConsultant = async (req, res, next) => {
                     req.consultant = result
                     return next()
                 })
-            console.log(decoded)
         } catch (error) {
             console.log(error)
             return next()
@@ -394,7 +396,6 @@ exports.dfq = async (req, res, next) => {
     from queue 
     where fk_consultation = ?
     and fk_student =?`, [req.body.consultation, req.body.user], (error, result) => {
-        console.log(result);
         if (result) {
             db.query(`call fixPosition(?)`, [req.body.consultation])
             res.status('200').send({ status: 'Succes' });
@@ -440,22 +441,19 @@ exports.dropFromQue = async (req, res, next) => {
 }
 
 exports.getConsultants = async (req, res, next) => {
-    db.query(`select user_id, name from users where role = 2`,(error, results)=>{
-        if(results)
-        {
+    db.query(`select user_id, name from users where role = 2`, (error, results) => {
+        if (results) {
             req.body.consultants = results;
             return next()
         }
-        else if(error)
-        {
+        else if (error) {
             console.log(error);
             return next()
         }
-        else
-        {
+        else {
             req.body.consultants = [];
         }
     })
-    }
+}
 
 
