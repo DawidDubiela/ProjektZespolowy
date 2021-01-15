@@ -38,9 +38,6 @@ app.use('/', require('./routes/pages'))
 app.use('/auth', require('./routes/auth'))
 
 //ustawiamy port
-var PORT = process.env.PORT
-app.listen(PORT, () =>{
-  console.log("Server is running")
-})
+app.listen(3000);
 
 

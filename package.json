@@ -20,17 +20,9 @@
     "nodemon": "^2.0.6"
   },
   "scripts": {
-    "start": "node app.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://gitlab.com/dawid.dubiela/projekt-zespolowy.git"
+    "live": "nodemon login.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://gitlab.com/dawid.dubiela/projekt-zespolowy/issues"
-  },
-  "homepage": "https://gitlab.com/dawid.dubiela/projekt-zespolowy#readme"
+  "license": "ISC"
 }
