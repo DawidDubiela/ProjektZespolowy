@@ -144,7 +144,7 @@ exports.addToQueue = async (req, res) => {
                 db.query(`select* 
                 from consultation where 
                 consultation_id = ?
-                and end>=(now() + interval 1 hour);`, [req.body.id_consultation], async (error, results) => {
+                and end>=now();`, [req.body.id_consultation], async (error, results) => {
                     if (results.length == 0) {
                         req.body.message = "Konsultacja na którą próbujesz się zapisać się zakończyła";
                         req.body.icon = "error";
