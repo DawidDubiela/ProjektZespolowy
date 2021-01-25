@@ -373,7 +373,7 @@ exports.isConsultant = async (req, res, next) => {
                 join consultation on fk_consultation = consultation_id
                 join users u on fk_student = u.user_id
                 join users u2 on consultant_id = u2.user_id
-                where start <= (now() + interval 1 hour) and end >= (now() + interval 1 hour) and 
+                where start <= now() and end >= now() and 
                 consultant_id = (select user_id from users where user_id = ? and role = 2) order by position asc`
                 , [decoded.id], (error, result) => {
                     if (result.length == 0) {
