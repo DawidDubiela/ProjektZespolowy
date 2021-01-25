@@ -85,7 +85,7 @@
                     icon: 'info'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const Url = 'https://konsultacje-pz.herokuapp.com/auth/kolejka';
+                        const Url = 'http://LOCALHOST:3000/auth/kolejka';
                         const Data = {
                             id_consultation: calEvent.id,
                             user: user
@@ -102,7 +102,7 @@
                     }
                     else if(result.isDenied)
                     {
-                        const Url = 'https://konsultacje-pz.herokuapp.com/auth/dropFromQue';
+                        const Url = 'http://LOCALHOST:3000/auth/dropFromQue';
                         const Data = {
                             id_consultation: calEvent.id,
                             user: user.user_id
